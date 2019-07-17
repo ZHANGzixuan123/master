@@ -1,0 +1,81 @@
+#提取轮廓
+import cv2
+import numpy as np
+
+img = cv2.imread('U:\shape2.png')
+#
+resImg = cv2.resize(img, (300,300),interpolation = cv2.INTER_CUBIC)
+#
+gray = cv2.cvtColor(resImg,cv2.COLOR_BGR2GRAY)
+#
+blurred = cv2.medianBlur(gray,5)
+
+cv2.threshold(blurred,80,255,0,blurred)
+#
+canny = cv2.Canny(blurred,50,150)
+#
+contours,hirearchy = cv2.findContours(canny,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+#直接画出想要的矩形为第13个轮廓
+cv2.drawContours(resImg, contours,-1,(0,80,150),2)
+
+cv2.imshow('gray',resImg)
+cv2.imshow('blur',canny)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+
+
+
+#只保留最大轮廓，因为进行了面积的比较，所以运行速度慢
+import cv2   
+import numpy as np
+
+imgfile = "U:\data1.jpg" 
+img = cv2.imread(imgfile)
+img = cv2.resize(img,(450,450),interpolation = cv2.INTER_CUBIC)
+#cv2.imshow("1",img)
+cv2.waitKey()
+h, w, _ = img.shape    
+print(h)
+print(w)
+img = cv2.resize(img, (500,500),interpolation = cv2.INTER_CUBIC)   
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)    
+    
+ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)    
+cv2.imshow("1111",thresh)  
+cv2.waitKey()
+# Find Contour    
+contours, hierarchy = cv2.findContours( thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)    
+    
+# 需要搞一个list给cv2.drawContours()才行！！！！！    
+c_max = []  
+max_area = 0  
+max_cnt = 0  
+print(len(contours))
+for i in range(len(contours)):  
+    cnt = contours[i]  
+    area = cv2.contourArea(cnt)  
+    # find max countour  
+    if (area>max_area):  
+        if(max_area!=0):  
+            c_min = []  
+            c_min.append(max_cnt)  
+            cv2.drawContours(thresh, c_min, -1, (0,0,0), cv2.FILLED)  
+        max_area = area  
+        max_cnt = cnt  
+    else:  
+        c_min = []  
+        c_min.append(cnt)  
+        cv2.drawContours(thresh, c_min, -1, (0,0,0), cv2.FILLED)  
+  
+    c_max.append(max_cnt)  
+  
+  
+    cv2.drawContours(thresh, c_max, -1, (255, 255, 255), thickness=-1)    
+    
+#cv2.imwrite("mask.png", img)   
+cv2.imshow('mask',thresh)    
+cv2.waitKey() 
+cv2.destroyAllWindows()
